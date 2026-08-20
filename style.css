@@ -1,129 +1,1454 @@
-/* customizable snowflake styling */
-.loader button {
-    width: 50%;
-    height: 100px;
-    position: fixed;
-    left: 50%;
-    top: 45%;
-    transform: translateY(-50%);
-    transform: translateX(-50%);
-    background: center no-repeat #fff;
-    z-index: 9999999999999999999999;
-    font-size: 50px;
-    outline: none;
+/* =========================================================
+   Happy Birthday — Guild Thần Thoại (Gunny PC)
+   Bảng màu lấy từ logo guild: hồng · gold · tím pastel · xanh trời
+
+   NGUYÊN TẮC BỐ CỤC: toàn bộ trang gói gọn trong đúng một khung
+   hình, không cuộn. Mọi kích thước đều tính theo chiều cao khung
+   nhìn (vh) và bị chặn thêm bằng vw để màn hình hẹp không bị tràn.
+   ========================================================= */
+
+:root {
+    --pink: #ff6fae;
+    --pink-soft: #ffc2dd;
+    --pink-deep: #e01b7d;
+    --gold: #ffd45c;
+    --gold-deep: #e89a1c;
+    --gold-light: #fff2b8;
+    --purple: #a97bff;
+    --purple-deep: #5b3aa8;
+    --sky: #8fd7ff;
+    --cream: #fff7ec;
+    --ink: #6b2350;
+
+    --shadow-soft: 0 10px 30px rgba(224, 27, 125, .18);
+    --shadow-pop: 0 14px 40px rgba(91, 58, 168, .28);
+
+    /* màu chữ — đổi hết khi trời chuyển đêm */
+    --c-kicker: var(--purple-deep);
+    --c-body: #8b2f66;
+    --c-body-shadow: 0 1px 0 #fff;
+    --c-done: var(--pink-deep);
+}
+
+body.night {
+    --c-kicker: #cbb6ff;
+    --c-body: #ffe0f2;
+    --c-body-shadow: 0 1px 10px rgba(20, 0, 34, .75);
+    --c-done: #ffe08a;
+}
+
+* {
     box-sizing: border-box;
-    border: none;
-    border-radius: .3em;
-    text-transform: uppercase;
-    box-shadow: 0 3px 6px rgba(0, 0, 0, .16), 0 3px 6px rgba(110, 80, 20, .4),
-        inset 0 -2px 5px 1px rgba(139, 66, 8, 1),
-        inset 0 -1px 1px 3px rgba(250, 227, 133, 1);
-    background-image: linear-gradient(160deg, #a54e07, #b47e11, #fef1a2, #bc881b, #a54e07);
-    border: 1px solid #a55d07;
-    color: rgb(120, 50, 5);
-    text-shadow: 0 2px 2px rgba(250, 227, 133, 1);
-    cursor: pointer;
-    transition: all .2s ease-in-out;
-    background-size: 100% 100%;
-    background-position: center;
 }
 
-.golden-btn:focus,
-.golden-btn:hover {
-    background-size: 150% 150%;
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23),
-        inset 0 -2px 5px 1px #b17d10,
-        inset 0 -1px 1px 3px rgba(250, 227, 133, 1);
-    border: 1px solid rgba(165, 93, 7, .6);
-    color: rgba(120, 50, 5, .8);
-}
-
-.golden-btn:active {
-    box-shadow: 0 3px 6px rgba(0, 0, 0, .16), 0 3px 6px rgba(110, 80, 20, .4),
-        inset 0 -2px 5px 1px #b17d10,
-        inset 0 -1px 1px 3px rgba(250, 227, 133, 1);
-}
-
-.loader {
-    position: fixed;
-    left: 0px;
-    top: 0px;
+html,
+body {
+    margin: 0;
+    padding: 0;
     width: 100%;
     height: 100%;
-    z-index: 999;
-    background: url(img/back.png) center no-repeat #000;
-}
-
-.song {
-    display: none;
+    overflow: hidden;
+    overscroll-behavior: none;
 }
 
 body {
-    background-color: #FFDAB9;
+    font-family: "Fredoka", "Segoe UI", system-ui, sans-serif;
+    color: var(--ink);
+    background: linear-gradient(180deg, #b7e8ff 0%, #dcd0ff 38%, #ffd7ec 70%, var(--cream) 100%);
+    -webkit-tap-highlight-color: transparent;
 }
 
 img {
-    width: 100%;
+    max-width: 100%;
+    display: block;
 }
 
-.balloon-border {
-    position: fixed;
-    top: 100%;
-    opacity: 0.5;
-    z-index: 99999999;
+/* =========================================================
+   HUY HIỆU GUILD (crest)
+   ========================================================= */
+.crest {
+    position: relative;
+    display: grid;
+    place-items: center;
+    margin-inline: auto;
+    aspect-ratio: 1;
+    animation: float 4.5s ease-in-out infinite;
 }
 
-.area {
-    text-align: center;
-    font-size: 70px;
-    color: #C4515C;
-    letter-spacing: -7px;
-    font-weight: 700;
-    text-transform: uppercase;
-    animation: spin 2s ease-out infinite;
-    text-shadow: 0px 0px 5px #fff, 0px 0px 7px #fff;
+.crest--lg {
+    width: clamp(96px, min(30vh, 52vw), 260px);
 }
 
-#nae {
-    text-transform: capitalize;
+.crest--md {
+    width: clamp(74px, min(16vh, 38vw), 152px);
 }
 
-#confetti {
+/* vòng gold xoay lấp lánh */
+.crest__ring {
     position: absolute;
-    left: 0;
-    top: 0;
+    inset: -7%;
+    border-radius: 50%;
+    background: conic-gradient(from 0deg,
+            #fff3c4, #ffd45c, #e89a1c, #fff7d6, #ffd45c, #c9820f, #fff3c4);
+    animation: spin 7s linear infinite;
+    filter: drop-shadow(0 0 14px rgba(255, 196, 87, .8));
+}
+
+.crest__img {
+    position: relative;
+    width: 100%;
     height: 100%;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 4px solid var(--cream);
+    box-shadow: var(--shadow-pop), inset 0 0 0 2px rgba(255, 255, 255, .6);
+}
+
+.crest__img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* 4 emoji bay quanh huy hiệu */
+.crest__orbit {
+    position: absolute;
+    inset: -14%;
+    animation: spin 14s linear infinite;
+    pointer-events: none;
+}
+
+.crest__orbit i {
+    position: absolute;
+    font-size: clamp(13px, min(2.2vh, 4vw), 24px);
+    font-style: normal;
+    animation: spin-rev 14s linear infinite;
+}
+
+.crest__orbit i:nth-child(1) {
+    top: -4%;
+    left: 50%;
+    translate: -50% 0;
+}
+
+.crest__orbit i:nth-child(2) {
+    top: 50%;
+    right: -4%;
+    translate: 0 -50%;
+}
+
+.crest__orbit i:nth-child(3) {
+    bottom: -4%;
+    left: 50%;
+    translate: -50% 0;
+}
+
+.crest__orbit i:nth-child(4) {
+    top: 50%;
+    left: -4%;
+    translate: 0 -50%;
+}
+
+/* =========================================================
+   MÀN HÌNH MỞ QUÀ
+   ========================================================= */
+#gate {
+    position: fixed;
+    inset: 0;
+    z-index: 500;
+    display: grid;
+    place-items: center;
+    padding: 16px;
+    overflow: hidden;
+    background:
+        radial-gradient(120% 80% at 50% 0%, #ffe6f5 0%, transparent 60%),
+        linear-gradient(180deg, #9fdcff, #cdb9ff 45%, #ffc6e4 100%);
+    transition: opacity .8s ease, visibility .8s;
+}
+
+#gate.is-hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.gate-sparkles {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.gate-card {
+    position: relative;
+    text-align: center;
+    max-width: 460px;
     width: 100%;
 }
 
-@keyframes spin {
-    0% {
-        transform: rotateZ(0);
+.gate-kicker {
+    margin: clamp(10px, 2.2vh, 22px) 0 4px;
+    font-weight: 600;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    font-size: clamp(9px, min(1.5vh, 2.8vw), 13px);
+    color: var(--purple-deep);
+    opacity: .85;
+}
+
+.gate-title {
+    font-family: "Baloo 2", cursive;
+    font-size: clamp(22px, min(5.4vh, 8vw), 42px);
+    line-height: 1.15;
+    margin: 0 0 clamp(14px, 3vh, 26px);
+    color: #fff;
+    text-shadow:
+        0 2px 0 var(--pink),
+        0 4px 0 var(--pink-deep),
+        0 10px 22px rgba(224, 27, 125, .45);
+}
+
+.btn-gift {
+    font-family: "Baloo 2", cursive;
+    font-size: clamp(15px, min(3.1vh, 5vw), 24px);
+    font-weight: 800;
+    color: #7a3208;
+    padding: clamp(10px, 1.9vh, 16px) clamp(20px, 4vh, 34px);
+    border: 2px solid #d9911a;
+    border-radius: 999px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: linear-gradient(160deg, #ffeaa3, #ffd45c 40%, #f0a72a 70%, #ffe07a);
+    box-shadow:
+        0 8px 0 #c9820f,
+        0 16px 30px rgba(200, 120, 10, .45),
+        inset 0 2px 6px rgba(255, 255, 255, .9);
+    transition: transform .16s ease, box-shadow .16s ease;
+    animation: pulse-glow 2.2s ease-in-out infinite;
+}
+
+.btn-gift:hover {
+    transform: translateY(-3px);
+}
+
+.btn-gift:active {
+    transform: translateY(5px);
+    box-shadow: 0 3px 0 #c9820f, 0 6px 14px rgba(200, 120, 10, .4), inset 0 2px 6px rgba(255, 255, 255, .9);
+}
+
+.btn-gift__emoji {
+    font-size: 1.25em;
+    animation: wiggle 1.1s ease-in-out infinite;
+}
+
+.gate-hint {
+    margin-top: clamp(8px, 1.8vh, 16px);
+    font-size: clamp(11px, 1.7vh, 14px);
+    color: var(--purple-deep);
+    opacity: .8;
+}
+
+/* =========================================================
+   SÂN KHẤU: lưới 2 hàng — băng rôn ở trên, nội dung lấp phần còn lại
+   ========================================================= */
+.stage {
+    position: fixed;
+    inset: 0;
+    display: grid;
+    grid-template-rows: auto 1fr;
+    overflow: hidden;
+}
+
+.stage[hidden] {
+    display: none;
+}
+
+/* --- nền trời: mây + cầu vồng --- */
+.sky {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+/* =========================================================
+   BẦU TRỜI ĐÊM — bật lên bằng class .night trên <body>
+   ========================================================= */
+.sky__night {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity 3s ease;
+    background: linear-gradient(180deg,
+            #10163f 0%, #241a5c 28%, #45206b 55%, #7c2a6d 78%, #c05287 100%);
+}
+
+body.night .sky__night {
+    opacity: 1;
+}
+
+/* --- sao --- */
+.stars {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity 2.6s ease 1s;
+}
+
+body.night .stars {
+    opacity: 1;
+}
+
+.star {
+    position: absolute;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 0 6px 1px rgba(255, 255, 255, .8);
+    animation: twinkle ease-in-out infinite alternate;
+}
+
+/* một số ngôi sao to hơn, hình bốn cánh lấp lánh */
+.star--sparkle {
+    border-radius: 0;
+    box-shadow: none;
+    filter: drop-shadow(0 0 5px rgba(255, 246, 200, .95));
+    background: #fff8dc;
+    clip-path: polygon(50% 0%, 61% 39%, 100% 50%, 61% 61%,
+            50% 100%, 39% 61%, 0% 50%, 39% 39%);
+}
+
+@keyframes twinkle {
+    from {
+        opacity: .22;
+        transform: scale(.65);
     }
 
-    25% {
-        transform: rotateZ(10deg);
+    to {
+        opacity: 1;
+        transform: scale(1.15);
+    }
+}
+
+/* --- sao băng --- */
+.shooting {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+}
+
+.shooting-star i {
+    position: absolute;
+    display: block;
+    width: 3px;
+    height: 3px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 0 10px 3px rgba(255, 255, 255, .9);
+    animation: shoot ease-in forwards;
+}
+
+.shooting-star i::after {
+    content: "";
+    position: absolute;
+    left: 3px;
+    top: 50%;
+    translate: 0 -50%;
+    width: clamp(70px, 12vw, 130px);
+    height: 2px;
+    border-radius: 2px;
+    background: linear-gradient(90deg, rgba(255, 255, 255, .85), transparent);
+}
+
+@keyframes shoot {
+    0% {
+        opacity: 0;
+        transform: translateX(0);
+    }
+
+    12% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0;
+        transform: translateX(-380px);
+    }
+}
+
+/* --- trăng lưỡi liềm: đổ bóng inset lệch tâm để khoét thành hình liềm --- */
+.moon {
+    --m: clamp(46px, 9vh, 96px);
+    position: absolute;
+    top: clamp(24px, 9vh, 90px);
+    right: clamp(18px, 8vw, 110px);
+    width: var(--m);
+    height: var(--m);
+    opacity: 0;
+    transform: translateY(48px) scale(.8);
+    transition: opacity 2.4s ease 1.1s,
+        transform 2.8s cubic-bezier(.2, .8, .3, 1) 1.1s;
+    filter: drop-shadow(0 0 16px rgba(255, 238, 176, .8))
+        drop-shadow(0 0 44px rgba(255, 220, 140, .45));
+}
+
+body.night .moon {
+    opacity: 1;
+    transform: none;
+}
+
+.moon__disc {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    box-shadow: inset calc(var(--m) * -.26) calc(var(--m) * -.05) 0 0 #fff4cd;
+}
+
+/* mây và cầu vồng nhường chỗ cho màn đêm */
+body.night .cloud {
+    opacity: .22;
+    filter: blur(1px) brightness(.55) saturate(.6);
+}
+
+body.night .rainbow {
+    opacity: 0;
+}
+
+body.night .balloon {
+    filter: drop-shadow(0 0 12px rgba(255, 255, 255, .4));
+}
+
+.cloud,
+.rainbow {
+    transition: opacity 3s ease, filter 3s ease;
+}
+
+.rainbow {
+    position: absolute;
+    top: -46vw;
+    left: 50%;
+    translate: -50% 0;
+    width: 150vw;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: conic-gradient(from 180deg,
+            transparent 0 40%,
+            #ff9ec4 42%, #ffd08a 45%, #fff2a0 48%,
+            #b6f2c6 51%, #a9d8ff 54%, #cdb4ff 57%,
+            transparent 60% 100%);
+    -webkit-mask: radial-gradient(closest-side, transparent 76%, #000 77% 92%, transparent 93%);
+    mask: radial-gradient(closest-side, transparent 76%, #000 77% 92%, transparent 93%);
+    opacity: .5;
+    filter: blur(1px);
+}
+
+.cloud {
+    position: absolute;
+    background: #fff;
+    border-radius: 100px;
+    opacity: .78;
+    filter: blur(.4px);
+    animation: drift linear infinite;
+}
+
+.cloud::before,
+.cloud::after {
+    content: "";
+    position: absolute;
+    background: #fff;
+    border-radius: 50%;
+}
+
+.cloud::before {
+    width: 55%;
+    aspect-ratio: 1;
+    top: -45%;
+    left: 12%;
+}
+
+.cloud::after {
+    width: 42%;
+    aspect-ratio: 1;
+    top: -30%;
+    right: 14%;
+}
+
+.cloud--1 {
+    width: 150px;
+    height: 44px;
+    top: 8%;
+    animation-duration: 58s;
+}
+
+.cloud--2 {
+    width: 110px;
+    height: 34px;
+    top: 26%;
+    animation-duration: 76s;
+    animation-delay: -20s;
+    opacity: .6;
+}
+
+.cloud--3 {
+    width: 190px;
+    height: 54px;
+    top: 46%;
+    animation-duration: 92s;
+    animation-delay: -50s;
+    opacity: .45;
+}
+
+.cloud--4 {
+    width: 96px;
+    height: 30px;
+    top: 66%;
+    animation-duration: 68s;
+    animation-delay: -35s;
+    opacity: .5;
+}
+
+@keyframes drift {
+    from {
+        left: -22vw;
+    }
+
+    to {
+        left: 108vw;
+    }
+}
+
+/* canvas hiệu ứng: cánh hoa, tim, sao, pháo giấy, pháo hoa */
+#fx {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+}
+
+/* --- bóng bay --- */
+.balloons {
+    position: fixed;
+    inset: 0;
+    z-index: 2;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.balloon {
+    position: absolute;
+    bottom: -30vh;
+    width: 54px;
+    height: 68px;
+    border-radius: 50% 50% 48% 48%;
+    cursor: pointer;
+    pointer-events: auto;
+    animation: rise linear forwards;
+    filter: drop-shadow(0 6px 10px rgba(120, 60, 120, .2));
+}
+
+.balloon::before {
+    content: "";
+    position: absolute;
+    top: 14%;
+    left: 20%;
+    width: 22%;
+    height: 30%;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, .75);
+    filter: blur(2px);
+}
+
+.balloon::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    width: 1.5px;
+    height: 60px;
+    background: rgba(255, 255, 255, .8);
+    transform-origin: top;
+    animation: sway 3s ease-in-out infinite;
+}
+
+.balloon.pop {
+    animation: pop .35s ease-out forwards;
+}
+
+@keyframes rise {
+    to {
+        transform: translateY(-135vh);
+    }
+}
+
+@keyframes sway {
+
+    0%,
+    100% {
+        transform: rotate(6deg);
     }
 
     50% {
-        transform: rotateZ(0deg);
-    }
-
-    75% {
-        transform: rotateZ(-10deg);
+        transform: rotate(-6deg);
     }
 }
 
-.type-wrap {
-    font-size: 25px;
-    color: #C4515C;
+@keyframes pop {
+    to {
+        transform: scale(1.7);
+        opacity: 0;
+    }
+}
 
+/* =========================================================
+   BĂNG RÔN CỜ GIẤY
+   ========================================================= */
+.bunting {
+    position: relative;
+    z-index: 6;
+    padding-inline: 6px;
+    pointer-events: none;
+    animation: letter-pop .7s cubic-bezier(.34, 1.56, .64, 1) .2s backwards;
+}
+
+.bunting__cord {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: clamp(24px, min(8.6vw, 6.4vh), 56px);
+    overflow: visible;
+    filter: drop-shadow(0 2px 2px rgba(120, 60, 120, .2));
+}
+
+.bunting__flags {
+    /* --flag-count do JS gán theo số chữ cái trên băng rôn.
+       Cờ tự co vừa bề ngang màn hình VÀ bị chặn theo chiều cao
+       để băng rôn không bao giờ ăn quá nhiều khung hình. */
+    --fw: clamp(13px, min(calc((100vw - 20px) / var(--flag-count, 19) - 3px), 6.4vh), 58px);
+    --droop: clamp(11px, min(4.4vw, 3.3vh), 30px);
+
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    gap: clamp(1px, .5vw, 4px);
+    padding-top: 7px;
+    /* transform không chiếm chỗ, nên phải chừa sẵn khoảng võng */
+    padding-bottom: var(--droop);
+}
+
+.flag-slot {
+    display: block;
+    flex: 0 0 auto;
+    /* --k = 0…1 theo hình sin, nhân với độ võng để cờ bám đúng dây cong */
+    transform: translateY(calc(var(--k) * var(--droop)));
+}
+
+.flag {
+    display: grid;
+    justify-items: center;
+    width: var(--fw);
+    aspect-ratio: 3/4;
+    padding-top: 3px;
+    clip-path: polygon(0 0, 100% 0, 50% 100%);
+    transform-origin: 50% 0;
+    animation: flag-sway 3.2s ease-in-out infinite;
+    filter: drop-shadow(0 3px 4px rgba(120, 60, 120, .3));
+    font-family: "Baloo 2", cursive;
+    font-weight: 800;
+    font-size: calc(var(--fw) * .42);
+    line-height: 1.1;
+    color: #fff;
+    text-shadow: 0 1px 2px rgba(90, 20, 60, .45);
+}
+
+@keyframes flag-sway {
+
+    0%,
+    100% {
+        transform: rotate(-2.6deg) skewX(-1.6deg);
+    }
+
+    50% {
+        transform: rotate(2.6deg) skewX(1.6deg);
+    }
+}
+
+/* =========================================================
+   NỘI DUNG CHÍNH
+   ========================================================= */
+.stage__inner {
+    position: relative;
+    z-index: 3;
+    min-height: 0;
+    width: 100%;
+    max-width: 780px;
+    margin-inline: auto;
+    padding: 0 16px clamp(6px, 1.6vh, 18px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(2px, .9vh, 12px);
+    text-align: center;
+}
+
+.hero__kicker {
+    margin: clamp(4px, .9vh, 10px) 0 0;
+    font-weight: 600;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    font-size: clamp(8.5px, min(1.45vh, 2.7vw), 13px);
+    color: var(--c-kicker);
+    opacity: .85;
+    transition: color 3s ease;
+}
+
+.hero__name {
+    font-family: "Baloo 2", cursive;
+    font-weight: 800;
+    font-size: clamp(26px, min(8.4vh, 12.5vw), 74px);
+    line-height: 1.05;
+    margin: 0;
+    color: var(--pink-deep);
+    filter: drop-shadow(0 3px 0 #fff) drop-shadow(0 6px 12px rgba(224, 27, 125, .4));
+}
+
+/* Gradient phải đặt trên chính từng chữ cái: nếu để ở thẻ cha thì
+   transform của các span con sẽ làm chữ mất hút. */
+.hero__name span {
+    display: inline-block;
+    background-image: linear-gradient(180deg, #fff 0%, #ffe9a3 35%, #ffb1d6 70%, #ff5fa8 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: letter-pop .6s cubic-bezier(.34, 1.56, .64, 1) backwards,
+        bob 2.6s ease-in-out infinite;
+}
+
+/* dải băng khẩu hiệu guild */
+.ribbon {
+    display: inline-block;
+    margin-top: clamp(3px, .8vh, 10px);
+    padding: clamp(4px, .85vh, 9px) clamp(11px, 2.2vh, 26px);
+    border-radius: 999px;
+    font-size: clamp(8.5px, min(1.55vh, 2.9vw), 14px);
+    font-weight: 600;
+    letter-spacing: .06em;
+    color: #fff;
+    background: linear-gradient(100deg, var(--pink-deep), var(--pink) 50%, #ff8fc4);
+    border: 2px solid rgba(255, 255, 255, .85);
+    box-shadow: var(--shadow-soft);
+    white-space: nowrap;
+}
+
+.ribbon b {
+    color: var(--gold-light);
+}
+
+/* dòng chữ gõ máy */
+.typing {
+    flex: 0 0 auto;
+    display: grid;
+    place-content: center;
+    min-height: 2.8em;
+    max-width: 34ch;
+    font-size: clamp(12px, min(2.3vh, 4.2vw), 21px);
+    font-weight: 500;
+    line-height: 1.35;
+    color: var(--c-body);
+    text-shadow: var(--c-body-shadow);
+    transition: color 3s ease, text-shadow 3s ease;
+}
+
+.caret {
+    color: var(--pink);
+    animation: blink 1s step-end infinite;
+}
+
+@keyframes blink {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0;
+    }
+}
+
+/* =========================================================
+   BÁNH KEM — mọi kích thước suy ra từ --cw để co giãn đồng bộ
+   ========================================================= */
+.cake-zone {
+    display: contents;
 }
 
 .cake {
-    transform: translateY(-50%);
-    transform: translateX(-50%);
-    left: 50%;
+    --cw: clamp(104px, min(20vh, 46vw), 208px);
+    position: relative;
+    width: var(--cw);
+    cursor: pointer;
+    transition: transform .25s ease;
+    filter: drop-shadow(0 14px 22px rgba(140, 60, 120, .28));
+}
+
+.cake:hover {
+    transform: translateY(-4px) scale(1.02);
+}
+
+.cake:focus-visible {
+    outline: 3px dashed var(--pink-deep);
+    outline-offset: 8px;
+    border-radius: 12px;
+}
+
+.cake__layer {
+    position: relative;
+    margin-inline: auto;
+    border-radius: 12px 12px 8px 8px;
+    background: linear-gradient(180deg, #ffd8e8, #ffb3d1 55%, #ff97c1);
+    box-shadow: inset 0 -6px 0 rgba(0, 0, 0, .06);
+}
+
+.cake__layer--top {
+    width: 62%;
+    height: calc(var(--cw) * .174);
+}
+
+.cake__layer--mid {
+    width: 82%;
+    height: calc(var(--cw) * .2);
+    background: linear-gradient(180deg, #e9d6ff, #cbb0ff 55%, #b697f7);
+}
+
+.cake__layer--bot {
+    width: 100%;
+    height: calc(var(--cw) * .226);
+    background: linear-gradient(180deg, #ffe6b8, #ffd18a 55%, #f5b45f);
+}
+
+/* lớp kem chảy phía trên mỗi tầng */
+.drip {
     position: absolute;
-    padding-top: 250px;
+    inset: calc(var(--cw) * -.061) 0 auto 0;
+    height: calc(var(--cw) * .122);
+    border-radius: 10px 10px 0 0;
+    background:
+        radial-gradient(circle calc(var(--cw) * .039) at calc(var(--cw) * .052) calc(var(--cw) * .065),
+            #fff9e8 98%, transparent 100%) 0 0/calc(var(--cw) * .104) 100% repeat-x,
+        linear-gradient(180deg, #fffdf7, #fff6e2) 0 0/100% calc(var(--cw) * .07) no-repeat;
+    filter: drop-shadow(0 2px 0 rgba(233, 160, 33, .22));
+}
+
+.cake__plate {
+    width: 118%;
+    height: calc(var(--cw) * .061);
+    margin: 0 auto;
+    translate: -8% 0;
+    border-radius: 0 0 999px 999px / 0 0 26px 26px;
+    background: linear-gradient(180deg, #fff, #e7d9f5);
+    box-shadow: 0 6px 12px rgba(120, 60, 120, .2);
+}
+
+/* --- nến --- */
+.cake__candles {
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    gap: calc(var(--cw) * .061);
+    height: calc(var(--cw) * .27);
+    margin-bottom: -2px;
+}
+
+.candle {
+    position: relative;
+    width: calc(var(--cw) * .043);
+    height: calc(var(--cw) * .165);
+    border-radius: 4px;
+    background: repeating-linear-gradient(45deg, #fff 0 5px, var(--pink) 5px 10px);
+    box-shadow: inset -2px 0 0 rgba(0, 0, 0, .08);
+}
+
+.flame {
+    position: absolute;
+    left: 50%;
+    bottom: 100%;
+    translate: -50% 0;
+    width: calc(var(--cw) * .057);
+    height: calc(var(--cw) * .087);
+    border-radius: 50% 50% 50% 50% / 62% 62% 38% 38%;
+    background: radial-gradient(ellipse at 50% 75%, #fff8d0 0%, var(--gold) 38%, #ff9c2e 70%, #ff5d2e 100%);
+    box-shadow: 0 0 14px 4px rgba(255, 176, 60, .75), 0 0 34px 12px rgba(255, 120, 40, .35);
+    transform-origin: 50% 100%;
+    animation: flicker .55s ease-in-out infinite alternate;
+    transition: opacity .3s ease, scale .3s ease;
+}
+
+.candle.out .flame {
+    opacity: 0;
+    scale: .2;
+    animation: none;
+}
+
+.smoke {
+    position: absolute;
+    left: 50%;
+    bottom: 100%;
+    translate: -50% 0;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(190, 180, 195, .75);
+    opacity: 0;
+    filter: blur(3px);
+}
+
+.candle.out .smoke {
+    animation: smoke 1.6s ease-out forwards;
+}
+
+@keyframes smoke {
+    0% {
+        opacity: .85;
+        transform: translateY(0) scale(.6);
+    }
+
+    100% {
+        opacity: 0;
+        transform: translateY(-60px) scale(2.6);
+    }
+}
+
+@keyframes flicker {
+    from {
+        transform: rotate(-5deg) scaleY(.94);
+    }
+
+    to {
+        transform: rotate(5deg) scaleY(1.06);
+    }
+}
+
+.cake-hint {
+    margin: clamp(4px, 1vh, 14px) 0 0;
+    font-size: clamp(9.5px, min(1.65vh, 3.1vw), 15px);
+    color: var(--c-body);
+    text-shadow: var(--c-body-shadow);
+    opacity: .9;
+    transition: color 3s ease, text-shadow 3s ease;
+}
+
+.cake-hint span {
+    opacity: .65;
+}
+
+.cake-hint.is-done {
+    color: var(--c-done);
+    font-weight: 700;
+    animation: letter-pop .5s cubic-bezier(.34, 1.56, .64, 1);
+}
+
+/* =========================================================
+   HÀNG NÚT BẤM
+   ========================================================= */
+.actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: clamp(5px, 1vh, 10px);
+    margin-top: clamp(4px, 1vh, 12px);
+}
+
+.btn-pill {
+    font-family: inherit;
+    font-size: clamp(9.5px, min(1.5vh, 2.8vw), 14px);
+    font-weight: 600;
+    white-space: nowrap;
+    color: var(--pink-deep);
+    background: rgba(255, 255, 255, .82);
+    border: 2px solid var(--pink-soft);
+    border-radius: 999px;
+    padding: clamp(6px, 1vh, 10px) clamp(10px, 1.8vh, 18px);
+    cursor: pointer;
+    backdrop-filter: blur(6px);
+    box-shadow: var(--shadow-soft);
+    transition: transform .15s ease, background .15s ease;
+}
+
+.btn-pill:hover {
+    transform: translateY(-2px);
+    background: #fff;
+}
+
+.btn-pill[hidden] {
+    display: none;
+}
+
+.btn-pill--hot {
+    color: #fff;
+    border-color: #fff;
+    background: linear-gradient(100deg, var(--pink-deep), var(--pink));
+}
+
+.btn-pill--hot:hover {
+    background: linear-gradient(100deg, var(--pink), var(--pink-deep));
+}
+
+.btn-pill.is-on {
+    color: #fff;
+    background: linear-gradient(100deg, #7d4fe0, var(--purple));
+    border-color: #fff;
+}
+
+/* =========================================================
+   THIỆP LẬT — lớp phủ toàn màn hình
+   ========================================================= */
+.card-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 300;
+    display: grid;
+    place-items: center;
+    padding: 18px;
+    perspective: 1200px;
+    background: rgba(96, 30, 80, .4);
+    backdrop-filter: blur(5px);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity .35s ease, visibility .35s;
+}
+
+.card-overlay.is-open {
+    opacity: 1;
+    visibility: visible;
+}
+
+.card-overlay__close {
+    position: absolute;
+    top: clamp(10px, 2vh, 22px);
+    right: clamp(10px, 2vw, 22px);
+    width: 42px;
+    height: 42px;
+    display: grid;
+    place-items: center;
+    font-size: 18px;
+    color: var(--pink-deep);
+    background: #fff;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: var(--shadow-pop);
+}
+
+.wish-card {
+    width: min(86vw, 420px);
+    aspect-ratio: 8/5;
+    max-height: 74vh;
+    cursor: pointer;
+    transform: scale(.82);
+    transition: transform .45s cubic-bezier(.34, 1.56, .64, 1);
+}
+
+.card-overlay.is-open .wish-card {
+    transform: scale(1);
+}
+
+.wish-card__inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transition: transform .8s cubic-bezier(.4, .2, .2, 1);
+    transform-style: preserve-3d;
+}
+
+.wish-card.is-open .wish-card__inner {
+    transform: rotateY(180deg);
+}
+
+.wish-card__face {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-content: center;
+    gap: 8px;
+    padding: clamp(16px, 3vh, 26px);
+    border-radius: 20px;
+    backface-visibility: hidden;
+    border: 3px solid rgba(255, 255, 255, .9);
+    box-shadow: var(--shadow-pop);
+}
+
+.wish-card__front {
+    background: linear-gradient(150deg, #ffd8ec, #ffc0e0 45%, #f7b7ff);
+}
+
+.wish-card__seal {
+    font-size: clamp(30px, 6vh, 46px);
+    animation: wiggle 2s ease-in-out infinite;
+}
+
+.wish-card__front b {
+    font-family: "Baloo 2", cursive;
+    font-size: clamp(15px, 2.6vh, 21px);
+    color: var(--pink-deep);
+}
+
+.wish-card__front small,
+.wish-card__back small {
+    font-size: clamp(10px, 1.6vh, 13px);
+    opacity: .7;
+}
+
+.wish-card__back {
+    transform: rotateY(180deg);
+    background: linear-gradient(150deg, var(--cream), #fff0d8 60%, #ffe4f1);
+    text-align: left;
+}
+
+.wish-card__back p {
+    margin: 0;
+    font-size: clamp(11px, min(2vh, 3.4vw), 16px);
+    line-height: 1.55;
+    white-space: pre-line;
+}
+
+/* =========================================================
+   Ô GỬI LỜI CHÚC
+   ========================================================= */
+.wish-form {
+    width: min(90vw, 400px);
+    max-height: 86vh;
+    display: flex;
+    flex-direction: column;
+    gap: clamp(3px, .7vh, 7px);
+    padding: clamp(18px, 3.4vh, 30px);
+    border-radius: 22px;
+    text-align: left;
+    border: 3px solid rgba(255, 255, 255, .9);
+    background: linear-gradient(150deg, var(--cream), #fff0d8 55%, #ffe4f1);
+    box-shadow: var(--shadow-pop);
+    transform: scale(.85);
+    transition: transform .45s cubic-bezier(.34, 1.56, .64, 1);
+}
+
+.card-overlay.is-open .wish-form {
+    transform: scale(1);
+}
+
+.wish-form__title {
+    margin: 0;
+    font-family: "Baloo 2", cursive;
+    font-size: clamp(17px, 3vh, 24px);
+    color: var(--pink-deep);
+}
+
+.wish-form__note {
+    margin: 0 0 clamp(4px, 1vh, 10px);
+    font-size: clamp(10px, 1.6vh, 13px);
+    opacity: .75;
+}
+
+.wish-form__label {
+    font-size: clamp(10px, 1.5vh, 12.5px);
+    font-weight: 600;
+    color: var(--purple-deep);
+    opacity: .85;
+}
+
+.wish-form__input {
+    font-family: inherit;
+    font-size: clamp(12px, 1.9vh, 15px);
+    color: var(--ink);
+    padding: clamp(7px, 1.2vh, 11px) 13px;
+    border: 2px solid var(--pink-soft);
+    border-radius: 13px;
+    background: rgba(255, 255, 255, .9);
+    outline: none;
+    transition: border-color .18s ease, box-shadow .18s ease;
+}
+
+.wish-form__input:focus {
+    border-color: var(--pink);
+    box-shadow: 0 0 0 4px rgba(255, 111, 174, .22);
+}
+
+.wish-form__area {
+    resize: none;
+    line-height: 1.45;
+}
+
+.wish-form__count {
+    align-self: flex-end;
+    font-size: 11px;
+    opacity: .6;
+}
+
+.wish-form__err {
+    margin: 0;
+    min-height: 1.2em;
+    font-size: clamp(10px, 1.5vh, 12.5px);
+    font-weight: 600;
+    color: #d1145a;
+}
+
+.wish-form__send {
+    margin-top: clamp(2px, .6vh, 6px);
+    font-family: "Baloo 2", cursive;
+    font-size: clamp(14px, 2.3vh, 19px);
+    font-weight: 800;
+    color: #fff;
+    padding: clamp(9px, 1.5vh, 14px);
+    border: 2px solid #fff;
+    border-radius: 999px;
+    cursor: pointer;
+    background: linear-gradient(100deg, var(--pink-deep), var(--pink) 60%, #ff8fc4);
+    box-shadow: var(--shadow-soft);
+    transition: transform .15s ease, filter .15s ease;
+}
+
+.wish-form__send:hover:not(:disabled) {
+    transform: translateY(-2px);
+    filter: brightness(1.06);
+}
+
+.wish-form__send:disabled {
+    cursor: default;
+    filter: grayscale(.5);
+    opacity: .7;
+}
+
+/* =========================================================
+   BÓNG BAY MANG LỜI CHÚC
+   ========================================================= */
+.balloon--wish {
+    display: grid;
+    place-items: center;
+}
+
+.balloon__name {
+    max-width: 84%;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    transform: translateY(-8%);
+    pointer-events: none;
+    font-size: 10px;
+    font-weight: 700;
+    color: #fff;
+    text-shadow: 0 1px 3px rgba(90, 20, 60, .55);
+}
+
+/* thẻ lời chúc bung ra giữa màn hình */
+.wish-pop {
+    position: fixed;
+    left: 50%;
+    top: 32%;
+    z-index: 320;
+    width: min(84vw, 340px);
+    translate: -50% -50%;
+    display: grid;
+    justify-items: center;
+    gap: 4px;
+    padding: clamp(14px, 2.6vh, 22px) clamp(16px, 3vh, 24px);
+    border-radius: 20px;
+    text-align: center;
+    pointer-events: none;
+    opacity: 0;
+    scale: .8;
+    transition: opacity .3s ease, scale .35s cubic-bezier(.34, 1.56, .64, 1);
+    border: 3px solid rgba(255, 255, 255, .95);
+    background: linear-gradient(150deg, #fff8ef, #ffe9f5 60%, #f4e2ff);
+    box-shadow: var(--shadow-pop);
+}
+
+.wish-pop.is-open {
+    opacity: 1;
+    scale: 1;
+}
+
+.wish-pop__emoji {
+    font-size: clamp(22px, 3.6vh, 30px);
+}
+
+.wish-pop__name {
+    font-family: "Baloo 2", cursive;
+    font-size: clamp(14px, 2.3vh, 19px);
+    color: var(--pink-deep);
+}
+
+.wish-pop__msg {
+    margin: 0;
+    font-size: clamp(12px, 1.9vh, 15.5px);
+    line-height: 1.5;
+    color: var(--ink);
+    overflow-wrap: anywhere;
+}
+
+/* =========================================================
+   NÚT NHẠC
+   ========================================================= */
+.btn-music {
+    position: fixed;
+    right: clamp(10px, 1.6vw, 18px);
+    bottom: clamp(10px, 1.6vh, 18px);
+    z-index: 400;
+    width: clamp(40px, 6.4vh, 52px);
+    aspect-ratio: 1;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 3px solid #fff;
+    background: linear-gradient(150deg, var(--gold), var(--gold-deep));
+    box-shadow: var(--shadow-pop);
+    font-size: clamp(17px, 2.8vh, 22px);
+    transition: transform .18s ease;
+}
+
+.btn-music[hidden] {
+    display: none;
+}
+
+.btn-music:hover {
+    transform: scale(1.08);
+}
+
+.btn-music__icon {
+    animation: bob 1.4s ease-in-out infinite;
+}
+
+.btn-music.is-muted {
+    filter: grayscale(.85);
+}
+
+.btn-music.is-muted .btn-music__icon {
+    animation: none;
+}
+
+/* =========================================================
+   KEYFRAMES DÙNG CHUNG
+   ========================================================= */
+@keyframes spin {
+    to {
+        rotate: 360deg;
+    }
+}
+
+@keyframes spin-rev {
+    to {
+        rotate: -360deg;
+    }
+}
+
+@keyframes float {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-12px);
+    }
+}
+
+@keyframes bob {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-5px);
+    }
+}
+
+@keyframes wiggle {
+
+    0%,
+    100% {
+        transform: rotate(-9deg);
+    }
+
+    50% {
+        transform: rotate(9deg);
+    }
+}
+
+@keyframes letter-pop {
+    from {
+        opacity: 0;
+        transform: translateY(28px) scale(.5) rotate(-12deg);
+    }
+
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+@keyframes pulse-glow {
+
+    0%,
+    100% {
+        filter: drop-shadow(0 0 0 rgba(255, 212, 92, 0));
+    }
+
+    50% {
+        filter: drop-shadow(0 0 22px rgba(255, 212, 92, .95));
+    }
+}
+
+/* tim bay khi chạm màn hình */
+.tap-heart {
+    position: fixed;
+    z-index: 450;
+    pointer-events: none;
+    font-size: 22px;
+    animation: tap-up 1s ease-out forwards;
+}
+
+@keyframes tap-up {
+    from {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(.4);
+    }
+
+    to {
+        opacity: 0;
+        transform: translate(-50%, -160%) scale(1.5);
+    }
+}
+
+/* =========================================================
+   MÀN HÌNH RẤT THẤP (điện thoại xoay ngang): giấu bớt cho gọn
+   ========================================================= */
+@media (max-height: 420px) {
+    .hero__kicker,
+    .cake-hint {
+        display: none;
+    }
+
+    .crest--md {
+        width: clamp(60px, 14vh, 92px);
+    }
+}
+
+/* =========================================================
+   TÔN TRỌNG prefers-reduced-motion
+   ========================================================= */
+@media (prefers-reduced-motion: reduce) {
+
+    *,
+    *::before,
+    *::after {
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .01ms !important;
+    }
 }
