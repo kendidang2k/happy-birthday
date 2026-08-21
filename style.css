@@ -539,11 +539,16 @@ body.night .balloon {
 .balloon {
     position: absolute;
     bottom: -30vh;
-    width: 54px;
-    height: 68px;
+    /* viền trong suốt: không nhìn thấy nhưng vẫn bấm được, nhờ vậy vùng
+       bấm rộng hơn quả bóng đúng 14px mỗi bên cho dễ trúng. */
+    border: 14px solid transparent;
+    background-clip: padding-box;
+    width: 82px;
+    height: 96px;
     border-radius: 50% 50% 48% 48%;
     cursor: pointer;
     pointer-events: auto;
+    touch-action: manipulation;
     animation: rise linear forwards;
     filter: drop-shadow(0 6px 10px rgba(120, 60, 120, .2));
 }
@@ -572,6 +577,8 @@ body.night .balloon {
     animation: sway 3s ease-in-out infinite;
 }
 
+/* Lúc nổ, JS gán thẳng animation "pop" vào style của quả bóng: inline
+   animation-duration của "rise" đè lên rule ở đây nên phải làm vậy. */
 .balloon.pop {
     animation: pop .35s ease-out forwards;
 }
@@ -679,9 +686,20 @@ body.night .balloon {
 /* =========================================================
    NỘI DUNG CHÍNH
    ========================================================= */
+/* các thứ bấm được thì lấy lại quyền nhận chuột (xem .stage__inner) */
+.stage__inner .cake,
+.stage__inner .btn-pill,
+.stage__inner button,
+.stage__inner a {
+    pointer-events: auto;
+}
+
 .stage__inner {
     position: relative;
     z-index: 3;
+    /* cả cột nội dung để lọt cú bấm xuống lớp bóng bay bên dưới;
+       chỉ những thứ thật sự bấm được mới nhận lại (quy tắc ngay phía trên) */
+    pointer-events: none;
     min-height: 0;
     width: 100%;
     max-width: 780px;
@@ -1236,7 +1254,7 @@ body.night .balloon {
     text-overflow: ellipsis;
     transform: translateY(-8%);
     pointer-events: none;
-    font-size: 10px;
+    font-size: 11px;
     font-weight: 700;
     color: #fff;
     text-shadow: 0 1px 3px rgba(90, 20, 60, .55);

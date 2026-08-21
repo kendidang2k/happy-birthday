@@ -213,7 +213,12 @@ function makeDrifter(y) {
     };
 }
 
+const MAX_CONFETTI = 420;   // trần pháo giấy, tránh dồn cục lúc bắn liên tiếp
+
 function spawnConfetti(originX, originY, amount = 90) {
+    const room = MAX_CONFETTI - confetti.length;
+    if (room <= 0) return;
+    if (amount > room) amount = room;
     for (let i = 0; i < amount; i++) {
         const angle = rand(-Math.PI, 0) + rand(-.35, .35);
         const power = rand(260, 640);
@@ -244,6 +249,16 @@ const rockets = [];   // quả pháo đang bay
 const sparks = [];    // tia lửa sau khi nổ
 const flashes = [];   // quầng sáng loé lúc nổ
 
+/* --- Giữ cho máy không tụt khung hình ---
+   Loạt pháo mừng lúc thổi xong nến bắn liên tiếp cả chục quả, tia lửa của
+   quả trước chưa tắt thì quả sau đã nổ. Ba cái chốt chặn ở đây:
+   MAX_SPARKS  — trần số tia lửa sống cùng lúc, vượt thì quả mới nổ ít hạt đi;
+   fxQuality   — tự hạ số hạt khi đo được máy đang chậm, khoẻ lại thì nâng lên;
+   sparkBuckets— gom tia lửa cùng màu, cùng độ sáng vào chung một nét vẽ. */
+const MAX_SPARKS = 760;
+const SPARK_BASE = 96;      // số hạt của một quả pháo lúc máy còn khoẻ
+let fxQuality = 1;
+
 /** side: "left" | "right" — bắn chéo từ góc trên vào giữa màn hình */
 function launchFirework(side) {
     if (prefersReduced) return;
@@ -257,13 +272,16 @@ function launchFirework(side) {
         x: sx, y: 0,
         t: 0,
         dur: rand(.55, .85),
-        color: pick(FIRE_COLORS),
+        ci: (Math.random() * FIRE_COLORS.length) | 0,
         trail: []
     });
 }
 
-function explode(x, y, baseColor) {
-    const n = innerWidth < 600 ? 64 : 120;
+function explode(x, y, baseCi) {
+    const room = MAX_SPARKS - sparks.length;
+    if (room < 16) return;                      // hết chỗ thì bỏ qua quả này
+    const base = innerWidth < 600 ? SPARK_BASE * .58 : SPARK_BASE;
+    const n = Math.min(room, Math.round(base * fxQuality));
     const power = rand(210, 340);
     const mixed = Math.random() < .4;           // 2/5 số quả nổ ra nhiều màu
     for (let i = 0; i < n; i++) {
@@ -275,23 +293,33 @@ function explode(x, y, baseColor) {
             vx: Math.cos(a) * sp,
             vy: Math.sin(a) * sp,
             life, maxLife: life,
-            size: rand(2.2, 4.6),
-            color: mixed ? pick(FIRE_COLORS) : baseColor
+            ci: mixed ? (Math.random() * FIRE_COLORS.length) | 0 : baseCi
         });
     }
-    flashes.push({ x, y, r: 10, life: .5, maxLife: .5, color: baseColor });
+    if (flashes.length < 5) {
+        flashes.push({ x, y, r: 10, life: .5, maxLife: .5, color: FIRE_COLORS[baseCi] });
+    }
 }
 
+/* Tia lửa gom theo (màu × độ sáng còn lại). Cùng một ô thì vẽ chung một
+   nét: 700 tia lửa từ 1400 lệnh stroke rút xuống còn nhiều nhất 48+48. */
+const K_BUCKETS = 6;
+const SPARK_SIZE = 3.4;     // bề dày trung bình, trước đây mỗi hạt một kiểu
+const sparkBuckets = Array.from(
+    { length: FIRE_COLORS.length * K_BUCKETS }, () => []
+);
+
 function updateFireworks(dt) {
+    if (!flashes.length && !rockets.length && !sparks.length) return;
     ctx.globalCompositeOperation = "lighter";
 
-    // quầng sáng loé
+    // quầng sáng loé — chặn bán kính lại, quầng càng to càng tốn khi tô
     for (let i = flashes.length - 1; i >= 0; i--) {
         const f = flashes[i];
         f.life -= dt;
         if (f.life <= 0) { flashes.splice(i, 1); continue; }
         const k = f.life / f.maxLife;
-        f.r += 460 * dt;
+        f.r = Math.min(f.r + 400 * dt, 170);
         const g = ctx.createRadialGradient(f.x, f.y, 0, f.x, f.y, f.r);
         g.addColorStop(0, "#ffffff");
         g.addColorStop(.25, f.color);
@@ -315,7 +343,7 @@ function updateFireworks(dt) {
         r.trail.push(r.x, r.y);
         if (r.trail.length > 16) r.trail.splice(0, 2);
 
-        ctx.strokeStyle = r.color;
+        ctx.strokeStyle = FIRE_COLORS[r.ci];
         for (let j = 0; j < r.trail.length - 2; j += 2) {
             const f = j / r.trail.length;
             // vệt mờ to bên ngoài + lõi sáng bên trong => đuôi lửa có quầng
@@ -331,11 +359,13 @@ function updateFireworks(dt) {
             ctx.stroke();
         }
 
-        if (p >= 1) { explode(r.x, r.y, r.color); rockets.splice(i, 1); }
+        if (p >= 1) { explode(r.x, r.y, r.ci); rockets.splice(i, 1); }
     }
 
     // tia lửa — quá đông thì bỏ lớp quầng sáng cho khỏi tụt khung hình
-    const glow = sparks.length < 1200;
+    const glow = sparks.length < 420 && fxQuality > .7;
+    for (const bucket of sparkBuckets) bucket.length = 0;
+
     for (let i = sparks.length - 1; i >= 0; i--) {
         const s = sparks[i];
         s.life -= dt;
@@ -348,22 +378,39 @@ function updateFireworks(dt) {
         s.y += s.vy * dt;
 
         const k = s.life / s.maxLife;
-        // gần tắt thì nhấp nháy như tàn lửa thật
-        const a = k < .35 ? k * (Math.random() < .55 ? 1 : .25) : k;
-        ctx.strokeStyle = s.color;
-        ctx.beginPath();
-        ctx.moveTo(s.px, s.py);
-        ctx.lineTo(s.x, s.y);
+        let kb = (k * K_BUCKETS) | 0;
+        if (kb > K_BUCKETS - 1) kb = K_BUCKETS - 1;
+        const bucket = sparkBuckets[s.ci * K_BUCKETS + kb];
+        bucket.push(s.px, s.py, s.x, s.y);
+    }
 
-        if (glow) {
-            ctx.globalAlpha = a * .3;             // quầng sáng
-            ctx.lineWidth = s.size * k * 3.4;
+    for (let ci = 0; ci < FIRE_COLORS.length; ci++) {
+        let styled = false;
+        for (let kb = 0; kb < K_BUCKETS; kb++) {
+            const pts = sparkBuckets[ci * K_BUCKETS + kb];
+            if (!pts.length) continue;
+            if (!styled) { ctx.strokeStyle = FIRE_COLORS[ci]; styled = true; }
+
+            const k = (kb + .5) / K_BUCKETS;
+            // ô mờ nhất là tàn lửa sắp tắt: cho nhấp nháy như thật
+            const a = kb ? k : k * (Math.random() < .55 ? 1 : .25);
+
+            ctx.beginPath();
+            for (let j = 0; j < pts.length; j += 4) {
+                ctx.moveTo(pts[j], pts[j + 1]);
+                ctx.lineTo(pts[j + 2], pts[j + 3]);
+            }
+
+            if (glow) {
+                ctx.globalAlpha = a * .3;             // quầng sáng
+                ctx.lineWidth = SPARK_SIZE * k * 3.4;
+                ctx.stroke();
+            }
+
+            ctx.globalAlpha = a;                      // lõi tia lửa
+            ctx.lineWidth = Math.max(SPARK_SIZE * k, .6);
             ctx.stroke();
         }
-
-        ctx.globalAlpha = a;                      // lõi tia lửa
-        ctx.lineWidth = s.size * k;
-        ctx.stroke();
     }
 
     ctx.globalCompositeOperation = "source-over";
@@ -407,11 +454,22 @@ function drawShape(p) {
 
 let lastTime = performance.now();
 let fxRunning = false;
+let frameEma = 1 / 60;      // thời gian một khung hình, làm mượt theo kiểu trung bình trượt
 
 function tick(now) {
     if (!fxRunning) return;
-    const dt = Math.min((now - lastTime) / 1000, .05);
+    const raw = (now - lastTime) / 1000;
+    const dt = Math.min(raw, .05);
     lastTime = now;
+
+    // Máy đang è cổ thì quả pháo sau nổ ít hạt đi, thở được rồi thì nâng lại.
+    // Chỉ chỉnh khi đang có pháo hoa, kẻo đổ oan cho những lúc trang đứng yên.
+    if (raw > 0 && raw < .5) frameEma += (raw - frameEma) * .1;
+    if (sparks.length > 120) {
+        if (frameEma > 1 / 42) fxQuality = Math.max(.4, fxQuality - .04);
+        else if (frameEma < 1 / 55) fxQuality = Math.min(1, fxQuality + .01);
+    }
+
     ctx.clearRect(0, 0, W, H);
 
     for (const p of drifters) {
@@ -591,6 +649,15 @@ function showWishPop(w) {
     wishPopTimer = setTimeout(() => wishPop.classList.remove("is-open"), 5500);
 }
 
+/* Bóng bay là mục tiêu di động nên phải cố tình làm cho dễ bấm:
+   - HIT: viền trong suốt quanh bóng (khai báo trong CSS), nới vùng bấm ra
+     mỗi bên chừng đó pixel mà nhìn vẫn y như cũ;
+   - bóng to hơn và bay chậm hơn trước;
+   - bắt "pointerdown" chứ không phải "click": bấm xuống là nổ luôn, không
+     cần giữ chuột đứng yên trên quả bóng đang trôi. */
+const BALLOON_HIT = 14;
+const BALLOON_W = 62, BALLOON_H = 78;
+
 function spawnBalloon(forcedWish) {
     const b = document.createElement("div");
     b.className = "balloon";
@@ -600,13 +667,15 @@ function spawnBalloon(forcedWish) {
         (WishStore.cache.length && Math.random() < .8 ? nextWish() : null);
 
     const c = pick(PALETTE);
-    b.style.background = `radial-gradient(circle at 32% 28%, #fff9, ${c} 55%, ${c})`;
-    b.style.left = rand(2, 88) + "%";
-    b.style.animationDuration = (wish ? rand(14, 22) : rand(11, 20)) + "s";
+    // backgroundImage chứ không phải background: viết tắt "background" sẽ
+    // xoá mất background-clip: padding-box, làm màu tràn cả ra vùng bấm.
+    b.style.backgroundImage = `radial-gradient(circle at 32% 28%, #fff9, ${c} 55%, ${c})`;
+    b.style.left = rand(2, 82) + "%";
+    b.style.animationDuration = (wish ? rand(21, 30) : rand(18, 28)) + "s";
 
-    const scale = wish ? rand(1.05, 1.4) : rand(.65, 1.25);
-    b.style.width = 54 * scale + "px";
-    b.style.height = 68 * scale + "px";
+    const scale = wish ? rand(1.15, 1.5) : rand(.95, 1.35);
+    b.style.width = (BALLOON_W * scale + BALLOON_HIT * 2) + "px";
+    b.style.height = (BALLOON_H * scale + BALLOON_HIT * 2) + "px";
 
     if (wish) {
         b.classList.add("balloon--wish");
@@ -616,8 +685,21 @@ function spawnBalloon(forcedWish) {
         b.appendChild(tag);
     }
 
-    b.addEventListener("click", (e) => {
-        b.classList.add("pop");
+    let popped = false;
+    b.addEventListener("pointerdown", (e) => {
+        if (popped) return;                        // đừng nổ hai lần
+        popped = true;
+        b.style.pointerEvents = "none";
+
+        // Ghim bóng lại đúng chỗ nó đang bay rồi mới cho nổ. Nếu không,
+        // đổi sang animation "pop" là mất luôn transform của "rise" và quả
+        // bóng nhảy tọt về điểm xuất phát dưới màn hình, không ai thấy nổ.
+        const r = b.getBoundingClientRect();
+        b.style.bottom = "auto";
+        b.style.left = r.left + "px";
+        b.style.top = r.top + "px";
+        b.style.animation = "pop .35s ease-out forwards";
+
         spawnConfetti(e.clientX, e.clientY, wish ? 60 : 26);
         if (wish) showWishPop(wish);
         setTimeout(() => b.remove(), 400);
@@ -668,16 +750,18 @@ function celebrate() {
     const r = cakeEl.getBoundingClientRect();
     const cx = r.left + r.width / 2;
     const cy = r.top + 20;
-    spawnConfetti(cx, cy, 160);
-    setTimeout(() => spawnConfetti(rand(0, W), rand(H * .2, H * .5), 90), 260);
-    setTimeout(() => spawnConfetti(rand(0, W), rand(H * .2, H * .5), 90), 520);
+    spawnConfetti(cx, cy, 120);
+    setTimeout(() => spawnConfetti(rand(0, W), rand(H * .2, H * .5), 70), 260);
+    setTimeout(() => spawnConfetti(rand(0, W), rand(H * .2, H * .5), 70), 520);
 
     // trời sập tối — pháo hoa từ đây trở đi sẽ rực hơn hẳn trên nền đêm
     setTimeout(fallNight, 450);
 
-    // loạt pháo hoa mừng: 14 quả liên tiếp từ hai góc, dày dần khi trời tối
-    for (let i = 0; i < 14; i++) {
-        setTimeout(() => launchFirework(i % 2 ? "right" : "left"), 600 + i * 300);
+    // loạt pháo hoa mừng: 12 quả liên tiếp từ hai góc, dày dần khi trời tối.
+    // Giãn nhịp ra 380ms để quả trước kịp tàn bớt rồi quả sau mới nổ — cùng
+    // lúc quá nhiều tia lửa là chỗ khiến trang giật nhất.
+    for (let i = 0; i < 12; i++) {
+        setTimeout(() => launchFirework(i % 2 ? "right" : "left"), 600 + i * 380);
     }
     cakeHint.textContent = `Điều ước đã bay lên trời rồi đó! 🌟 Chúc mừng sinh nhật ${CONFIG.who} nha!`;
     cakeHint.classList.add("is-done");
